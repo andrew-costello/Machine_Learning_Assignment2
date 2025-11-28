@@ -34,3 +34,35 @@ print(f"Average Training MAE: {train_mae_mean:.4f}")
 print(f"Average Test MAE: {test_mae_mean:.4f}")
 print(f"Average Training MAPE: {train_mape_mean:.4f}")
 print(f"Average Test MAPE: {test_mape_mean:.4f}")
+
+# Hyperparameter tuning for KNN
+neighbors_list = [3, 5, 7, 9]
+weights_list = ['uniform', 'distance']
+
+knn_tuning_results = []
+
+for neighbor in neighbors_list:
+    for weight in weights_list:
+        model = KNeighborsRegressor(
+            n_neighbors=neighbor, 
+            weights=weight
+        )
+        scores = cross_validate(
+            model, X, y, 
+            cv=kf, 
+            scoring=scoring, 
+            return_train_score=False
+        )
+        test_mae = -np.mean(scores['test_MAE'])
+        test_mape = -np.mean(scores['test_MAPE'])
+        knn_tuning_results.append({
+            'n_neighbors': neighbor,
+            'weights': weight,
+            'Test_MAE': test_mae,
+            'Test_MAPE': test_mape
+        })
+
+# Create results table
+knn_tuning_df = pd.DataFrame(knn_tuning_results)
+print("\nKNN Hyperparameter Tuning Results:")
+print(knn_tuning_df.round(4))
