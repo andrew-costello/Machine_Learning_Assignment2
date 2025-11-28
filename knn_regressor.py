@@ -64,5 +64,32 @@ for neighbor in neighbors_list:
 
 # Create results table
 knn_tuning_df = pd.DataFrame(knn_tuning_results)
-print("\nKNN Hyperparameter Tuning Results:")
+print("\nKNN Regressor Hyperparameter Tuning Results:")
 print(knn_tuning_df.round(4))
+
+import matplotlib.pyplot as plt
+
+# Plot Test MAE vs n_neighbors for different weights
+plt.figure(figsize=(10, 6))
+
+for weight in weights_list:
+    subset = knn_tuning_df[knn_tuning_df['weights'] == weight]
+    plt.plot(subset['n_neighbors'], subset['Test_MAE'], 
+             marker='o', label=f'weights={weight}', linewidth=2.5)
+
+plt.xlabel('n_neighbors', fontsize=12)
+plt.ylabel('Test MAE', fontsize=12)
+plt.title('KNN Regressor: Test MAE vs n_neighbors (10-fold CV)', fontsize=14)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Find and print best hyperparameters
+best_idx = knn_tuning_df['Test_MAE'].idxmin()
+best_params = knn_tuning_df.loc[best_idx]
+print(f"\nBest KNN hyperparameters:")
+print(f"n_neighbors: {best_params['n_neighbors']}")
+print(f"weights: {best_params['weights']}")
+print(f"Best Test MAE: {best_params['Test_MAE']:.4f}")
+print(f"Best Test MAPE: {best_params['Test_MAPE']:.4f}")
